@@ -1,0 +1,68 @@
+pip install kafka-python
+pip install pyspark==3.5.0
+pip install kafka-python
+----------------------------------------------------------
+cassandra  setup
+----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS telecom.tower_metrics (
+    tower_id bigint,
+    cell_id bigint,
+    tracking_area_code bigint,
+    radio text,
+    mobile_country_code int,
+    mobile_network_code int,
+    network text,
+    latitude double,
+    longitude double,
+    governorate_en text,
+    country text,
+    range int,
+    sampling_count int,
+    tower_status text,
+    signal_quality text,
+    coverage_gap boolean,
+    priority text,
+    signal_strength int,
+    speed double,
+    latency double,
+    quality_of_experience double,
+    avg_load double,
+    total_calls int,
+    drop_calls int,
+    drop_rate double,
+    maintenance_type text,
+    labor_cost_egp double,
+    parts_cost_egp double,
+    downtime_hours double,
+    vendor text,
+    notes text,
+    created bigint,
+    updated bigint,
+    created_dt timestamp,
+    updated_dt timestamp,
+    maintenance_date text,
+    maint_total_cost double,
+    is_high_risk boolean,
+    is_anomaly boolean,
+    lat_rounded double,
+    lon_rounded double,
+    PRIMARY KEY ((tower_id), created)
+) WITH CLUSTERING ORDER BY (created DESC);
+
+
+docker exec -it cassandra cqlsh
+
+CREATE KEYSPACE telecom
+WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': 1
+};
+
+DESCRIBE TABLE telecom.tower_metrics;
+
+
+docker network connect container_default cassandra
+
+docker exec -it cassandra cqlsh
+USE telecom;
+SELECT * FROM tower_metrics LIMIT 10;

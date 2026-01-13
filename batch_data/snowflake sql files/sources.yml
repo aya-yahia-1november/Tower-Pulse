@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: telecom_raw        # الاسم الذي تستخدمه داخل dbt: source('telecom_raw', 'stg_full_telecom')
+    database: ANOMALY_DETECTION_SYSTEM
+    schema: SC1
+    tables:
+      - name: stg_full_telecom
+        identifier: STG_FULL_TELECOM   # optional, use if real table name is uppercase in Snowflake

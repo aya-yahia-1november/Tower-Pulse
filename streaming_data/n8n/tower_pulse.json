@@ -1,0 +1,411 @@
+{
+  "name": "tower_pulse",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8000/stream?n=100",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -752,
+        -176
+      ],
+      "id": "d823f5f9-90de-406c-a7c6-c147493315cf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -976,
+        -176
+      ],
+      "id": "f64c0c5e-3b87-4a3f-8ae3-e052eb2d7d72",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "78569d16-84e2-4b18-81ef-5f0e20772307",
+              "leftValue": "={{ $json.tower_status }}",
+              "rightValue": "=down",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "74d07091-e151-47c7-bbc1-4f9c7f0ebb5d",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -304,
+        -416
+      ],
+      "id": "c7bc6dc7-cc49-4117-a55e-9d88d72350d8",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "sendTo": "ayayahiavgy@gmail.com",
+        "subject": "Critical Down Towers",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Tower Maintenance Report</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      background-color: #f5f5f5;\n      color: #333;\n      margin: 0;\n      padding: 20px;\n    }\n    .container {\n      max-width: 700px;\n      margin: auto;\n      background-color: #fff;\n      border-radius: 10px;\n      box-shadow: 0 4px 10px rgba(0,0,0,0.1);\n      padding: 20px;\n      border-top: 8px solid #6a0dad; /* purple accent */\n    }\n    h2 {\n      color: #6a0dad;\n      text-align: center;\n    }\n    table {\n      width: 100%;\n      border-collapse: collapse;\n      margin-top: 20px;\n    }\n    th, td {\n      text-align: left;\n      padding: 10px;\n      border-bottom: 1px solid #ddd;\n    }\n    th {\n      background-color: #e0c3fc;\n      color: #4b0082;\n    }\n    tr:hover {\n      background-color: #f1f1f1;\n    }\n    .status-critical {\n      color: #ff0000;\n      font-weight: bold;\n    }\n    .footer {\n      margin-top: 20px;\n      text-align: center;\n      font-size: 0.9em;\n      color: #777;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h2>Tower Maintenance Report</h2>\n    <table>\n      <tr><th>Field</th><th>Value</th></tr>\n      <tr><td>ID</td><td>{{$json[\"ID\"]}}</td></tr>\n      <tr><td>Radio</td><td>{{$json[\"radio\"]}}</td></tr>\n      <tr><td>MCC</td><td>{{$json[\"MCC\"]}}</td></tr>\n      <tr><td>MNC</td><td>{{$json[\"MNC\"]}}</td></tr>\n      <tr><td>TAC</td><td>{{$json[\"TAC\"]}}</td></tr>\n      <tr><td>CID</td><td>{{$json[\"CID\"]}}</td></tr>\n      <tr><td>Location</td><td>{{$json[\"LAT\"]}}, {{$json[\"LON\"]}}</td></tr>\n      <tr><td>Range</td><td>{{$json[\"RANGE\"]}}</td></tr>\n      <tr><td>Network</td><td>{{$json[\"Network\"]}}</td></tr>\n      <tr><td>Drop Calls</td><td>{{$json[\"drop_calls\"]}}</td></tr>\n      <tr><td>Total Calls</td><td>{{$json[\"total_calls\"]}}</td></tr>\n      <tr><td>Drop Rate</td><td>{{$json[\"drop_rate\"]}}</td></tr>\n      <tr><td>Signal Strength</td><td>{{$json[\"signal_strength\"]}}</td></tr>\n      <tr><td>Speed</td><td>{{$json[\"speed\"]}}</td></tr>\n      <tr><td>Latency</td><td>{{$json[\"latency\"]}}</td></tr>\n      <tr><td>QoE</td><td>{{$json[\"QoE\"]}}</td></tr>\n      <tr><td>Coverage Gap</td><td>{{$json[\"coverage_gap\"]}}</td></tr>\n      <tr><td>Signal Quality</td><td>{{$json[\"signal_quality\"]}}</td></tr>\n      <tr><td>Tower Status</td><td class=\"status-critical\">{{$json[\"tower_status\"]}}</td></tr>\n      <tr><td>Priority</td><td>{{$json[\"priority\"]}}</td></tr>\n      <tr><td>Maintenance Type</td><td>{{$json[\"maintenance_type\"]}}</td></tr>\n      <tr><td>Created</td><td>{{$json[\"created_dt\"]}}</td></tr>\n      <tr><td>Updated</td><td>{{$json[\"updated_dt\"]}}</td></tr>\n      <tr><td>Maintenance Date</td><td>{{$json[\"maintenance_date\"]}}</td></tr>\n      <tr><td>Labor Cost (EGP)</td><td>{{$json[\"labor_cost_egp\"]}}</td></tr>\n      <tr><td>Parts Cost (EGP)</td><td>{{$json[\"parts_cost_egp\"]}}</td></tr>\n      <tr><td>Downtime (hours)</td><td>{{$json[\"downtime_hours\"]}}</td></tr>\n      <tr><td>Vendor</td><td>{{$json[\"vendor\"]}}</td></tr>\n      <tr><td>Notes</td><td>{{$json[\"notes\"]}}</td></tr>\n    </table>\n    <div class=\"footer\">\n      This is an automated report. Please do not reply.\n    </div>\n  </div>\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -416
+      ],
+      "id": "7a05cf5a-98f1-40a5-a0c3-6639faf35740",
+      "name": "Send a message",
+      "webhookId": "ecfdd3c9-c8eb-40f0-a6f9-453da580dcdb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSSvGEwutOTX6kMb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=this is recently hour data :\n{{ $json.towers }}",
+        "options": {
+          "systemMessage": "Your task is to analyze large datasets of telecom tower operations and provide concise, accurate, and actionable insights. You must consider performance, reliability, maintenance, and network quality metrics to guide operational decisions.\n\nDataset contains for each tower:\n\nIdentifiers: TAC, CID\n\nLocation: LAT, LON, Country, Network\n\nCoverage: RANGE, coverage_gap\n\nOperational metrics: tower_status, priority, drop_calls, total_calls, drop_rate, avg_load, signal_strength, signal_quality, speed, latency, QoE\n\nMaintenance info: maintenance_type, maintenance_date, labor_cost_egp, parts_cost_egp, downtime_hours, vendor, notes\n\nTimestamps: created, updated, created_dt, updated_dt\n\nYour analysis should include:\n\nSummary: total towers, distribution by country, network, and priority.\n\nOperational status: number of towers up vs down, percentage of critical towers, and towers with coverage gaps.\n\nNetwork performance: average and outlier values for drop rate, signal strength, latency, speed, QoE, and network load. Highlight towers with poor performance.\n\nMaintenance insights: average downtime, recent maintenance trends, cost overview, and critical maintenance needs.\n\nActionable recommendations: prioritize towers for repair, optimization, or preventive maintenance. Suggest risk mitigation where performance is poor or downtime is high.\n\nTrends & anomalies: identify patterns, clusters of failing towers, unusual metrics, or high-cost towers.\n\nOutput Requirements:\n\nPresent findings clearly and concisely, in paragraphs and bullet points.\n\nInclude key metrics, but focus on insights, trends, and recommended actions.\n\nHighlight critical issues first, then general observations.\n\nAvoid generic statements; always tie insights to data-driven observations.\n\nTone: Professional, data-driven, and concise."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "a5041723-22ff-4807-a8ba-122570cc0312",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-3-haiku-20240307",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 3"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        144
+      ],
+      "id": "2e6b0670-9653-4ca9-946a-edd7c47889c2",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "r3PJSX7LcWSKT4rS",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Input: list of tower dictionaries (items from previous node)\n# Example: items = [{\"json\": {...}}, {\"json\": {...}}, ...]\n\n# Flatten all items into a single item\nall_towers = [item['json'] for item in items]\n\n# Prepare one n8n item containing the full array\noutput = [\n    {\n        \"json\": {\n            \"towers\": all_towers\n        }\n    }\n]\n\n# Return output to n8n\nreturn output\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -48
+      ],
+      "id": "c86c8d91-719d-42f3-9935-1c9d61e3752f",
+      "name": "Code in Python (Beta)"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Input: AI output JSON as string from n8n\nai_output = _input.first().json['output']  # This is already a string\n\nimport re\n\ntext = ai_output  # no [0]['output'], just use the string directly\n\n# Function to extract sections\ndef extract_section(text, section_name):\n    pattern = rf\"{section_name}:(.*?)(?=\\n[A-Z][a-z]*:|\\Z)\"\n    match = re.search(pattern, text, re.DOTALL)\n    if match:\n        return match.group(1).strip().replace(\"\\n- \", \"\\n\").split(\"\\n\")\n    return []\n\n# Extract key insights\nsummary = extract_section(text, \"Summary\")\noperational_status = extract_section(text, \"Operational Status\")\nnetwork_performance = extract_section(text, \"Network Performance\")\nmaintenance_insights = extract_section(text, \"Maintenance Insights\")\nrecommendations = extract_section(text, \"Recommendations\")\ntrends_anomalies = extract_section(text, \"Trends and Anomalies\")\n\n# Prepare output for n8n\noutput = [\n    {\n        \"json\": {\n            \"summary\": summary,\n            \"operational_status\": operational_status,\n            \"network_performance\": network_performance,\n            \"maintenance_insights\": maintenance_insights,\n            \"recommendations\": recommendations,\n            \"trends_anomalies\": trends_anomalies\n        }\n    }\n]\n\nreturn output\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "96e878c8-d4d8-4310-b196-07a5a54ecc90",
+      "name": "Code in Python (Beta)1"
+    },
+    {
+      "parameters": {
+        "sendTo": "ayayahiavgy@gmail.com",
+        "subject": "Analysis Towers Report",
+        "message": "=<body style=\"\n  font-family: Arial, Helvetica, sans-serif;\n  background-color: #f3eef7;\n  padding: 20px;\n  color: #3d2c4a;\n\">\n\n<div style=\"\n  max-width: 800px;\n  margin: auto;\n  background-color: #ffffff;\n  padding: 28px;\n  border-radius: 10px;\n  box-shadow: 0 2px 10px rgba(120, 90, 150, 0.15);\n\">\n\n  <h2 style=\"\n    color:#6a1b9a;\n    margin-bottom:8px;\n  \">\n    📡 Telecom Network Analysis Report\n  </h2>\n\n  <p style=\"color:#7b5c8d; font-size:14px;\">\n    Automated insights generated by the Telecom Analysis AI Agent\n  </p>\n\n  <!-- Summary -->\n  <h3 style=\"\n    color:#7b1fa2;\n    border-bottom:2px solid #e1bee7;\n    padding-bottom:4px;\n  \">\n    📌 Summary\n  </h3>\n  <ul>\n    {{ $json.summary.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <!-- Operational Status -->\n  <h3 style=\"\n    color:#7b1fa2;\n    border-bottom:2px solid #e1bee7;\n    padding-bottom:4px;\n  \">\n    ⚙️ Operational Status\n  </h3>\n  <ul>\n    {{ $json.operational_status.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <!-- Network Performance -->\n  <h3 style=\"\n    color:#7b1fa2;\n    border-bottom:2px solid #e1bee7;\n    padding-bottom:4px;\n  \">\n    📈 Network Performance\n  </h3>\n  <ul>\n    {{ $json.network_performance.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <!-- Maintenance Insights -->\n  <h3 style=\"\n    color:#7b1fa2;\n    border-bottom:2px solid #e1bee7;\n    padding-bottom:4px;\n  \">\n    🛠 Maintenance Insights\n  </h3>\n  <ul>\n    {{ $json.maintenance_insights.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <!-- Recommendations -->\n  <h3 style=\"\n    color:#8e24aa;\n    border-bottom:2px solid #d1c4e9;\n    padding-bottom:4px;\n  \">\n    🔧 Recommendations\n  </h3>\n  <ul>\n    {{ $json.recommendations.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <!-- Trends & Anomalies -->\n  <h3 style=\"\n    color:#6a1b9a;\n    border-bottom:2px solid #d1c4e9;\n    padding-bottom:4px;\n  \">\n    📊 Trends & Anomalies\n  </h3>\n  <ul>\n    {{ $json.trends_anomalies.map(i => `<li style=\"margin-bottom:6px;\">${i}</li>`).join('') }}\n  </ul>\n\n  <hr style=\"\n    margin-top:30px;\n    border:0;\n    border-top:1px solid #e1bee7;\n  \">\n\n  <p style=\"font-size:12px; color:#8d6aa3;\">\n    This report is automatically generated for operational insights and decision support.\n  </p>\n\n</div>\n</body>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -48
+      ],
+      "id": "e4ebb2da-1ebe-47b9-a22b-c0f804297b75",
+      "name": "Send a message1",
+      "webhookId": "ecfdd3c9-c8eb-40f0-a6f9-453da580dcdb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSSvGEwutOTX6kMb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Input: list of tower dictionaries (items from previous node)\n# Example: items = [{\"json\": {...}}, {\"json\": {...}}, ...]\n\n# Flatten all items into a single item\nall_towers = [item['json'] for item in items]\n\n# Prepare one n8n item containing the full array\noutput = [\n    {\n        \"json\": {\n            \"towers\": all_towers\n        }\n    }\n]\n\n# Return output to n8n\nreturn output\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -416
+      ],
+      "id": "98917cb4-cf51-42a2-ad8f-7bd7563fb9a9",
+      "name": "Code in Python (Beta)2"
+    },
+    {
+      "parameters": {
+        "sendTo": "ayayahiavgy@gmail.com",
+        "subject": "Critical Down Towers",
+        "message": "=<!DOCTYPE html>\n<html>\n<body style=\"font-family:Arial; background:#f4effa; padding:20px;\">\n\n<div style=\"max-width:900px; margin:auto; background:#fff; border-radius:14px;\n            box-shadow:0 4px 14px rgba(128,90,213,0.25);\">\n\n  <div style=\"background:linear-gradient(135deg,#6a11cb,#a855f7);\n              color:white; padding:20px;\">\n    <h2>📡 Telecom Tower Report</h2>\n  </div>\n\n  <div style=\"padding:20px;\">\n\n    <h3 style=\"color:#6a11cb;\">\n      Tower ID: {{ $json.towers[0].ID }}\n    </h3>\n\n    <table width=\"100%\" cellpadding=\"8\" cellspacing=\"0\"\n           style=\"border-collapse:collapse; font-size:14px;\">\n\n      <tr style=\"background:#f3e8ff;\">\n        <td><b>Country</b></td>\n        <td>{{ $json.towers[0].Country }}</td>\n        <td><b>Network</b></td>\n        <td>{{ $json.towers[0].Network }}</td>\n      </tr>\n\n      <tr>\n        <td><b>Status</b></td>\n        <td>\n          <span style=\"\n            padding:4px 10px;\n            border-radius:12px;\n            color:white;\n            background:\n            {{ $json.towers[0].tower_status === 'up' ? '#22c55e' : '#ef4444' }}\">\n            {{ $json.towers[0].tower_status }}\n          </span>\n        </td>\n        <td><b>Priority</b></td>\n        <td style=\"color:#9333ea;\">\n          <b>{{ $json.towers[0].priority }}</b>\n        </td>\n      </tr>\n\n      <tr style=\"background:#faf5ff;\">\n        <td>Drop Rate</td>\n        <td>{{ ($json.towers[0].drop_rate * 100).toFixed(2) }}%</td>\n        <td>QoE</td>\n        <td>{{ $json.towers[0].QoE }}</td>\n      </tr>\n\n      <tr>\n        <td>Signal Strength</td>\n        <td>{{ $json.towers[0].signal_strength }} dBm</td>\n        <td>Latency</td>\n        <td>{{ $json.towers[0].latency }} ms</td>\n      </tr>\n\n      <tr style=\"background:#faf5ff;\">\n        <td>Maintenance</td>\n        <td>{{ $json.towers[0].maintenance_type }}</td>\n        <td>Vendor</td>\n        <td>{{ $json.towers[0].vendor }}</td>\n      </tr>\n\n    </table>\n\n    <div style=\"margin-top:15px; padding:12px;\n                background:#faf5ff; border-left:5px solid #a855f7;\">\n      <b>Notes:</b>\n      {{ $json.towers[0].notes || 'No notes' }}\n    </div>\n\n  </div>\n</div>\n\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        -784
+      ],
+      "id": "cced1180-848f-4642-a2a5-e0fb59505c7f",
+      "name": "Send a message2",
+      "webhookId": "ecfdd3c9-c8eb-40f0-a6f9-453da580dcdb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YSSvGEwutOTX6kMb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# call data ",
+        "height": 832,
+        "width": 640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        -560
+      ],
+      "id": "a58b7214-331c-425a-b9cd-97a42de5e825",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Alart critical towers",
+        "height": 336,
+        "width": 1056,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -560
+      ],
+      "id": "7728b3c6-408d-477d-ac49-4249d541affc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Report Analysis towers",
+        "height": 480,
+        "width": 1072,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -192
+      ],
+      "id": "a586fdff-bad5-4388-ac79-5caad433ec77",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {
+    "AI Agent": [
+      {
+        "json": {
+          "output": "Thank you for providing the telecom tower data. Here is an analysis of the key insights and recommendations based on the information you have shared:\n\nSummary:\n- The dataset contains information on 100 telecom towers across various countries and networks.\n- The towers are distributed across multiple countries, with the majority located in Egypt (70%) and the remaining in other countries like Morocco, Algeria, and Tunisia.\n- Most of the towers (60%) are classified as \"high priority\", indicating their importance to the network.\n\nOperational Status:\n- 85% of the towers are currently operational, while 15% are down or facing issues.\n- 12% of the towers have coverage gaps, which could impact network quality for customers in those areas.\n- The critical towers (high priority) have a slightly higher operational rate of 90% compared to the overall network.\n\nNetwork Performance:\n- The average call drop rate across the network is 3.2%, which is within the acceptable range. However, 8 towers have drop rates exceeding 5%, indicating potential issues that require investigation.\n- Signal strength is generally good, with an average of -75 dBm. But 15 towers have signal strength below -85 dBm, which may lead to poor coverage.\n- Latency is relatively low, averaging 35ms, but 12 towers have latency above 50ms, which could impact real-time services.\n- Average download speed is 25 Mbps, but 10 towers have speeds below 15 Mbps, potentially impacting user experience.\n- Overall, the network quality metrics (QoE) are satisfactory, with an average score of 4.2 out of 5. However, 6 towers have QoE scores below 3.5, indicating a need for optimization.\n\nMaintenance Insights:\n- The average downtime for maintenance activities is 6 hours, with a total of 600 hours of downtime across the network.\n- The average maintenance cost per tower is 4,500 EGP, with labor costs accounting for 60% and parts costs 40%.\n- 25 towers have not undergone any maintenance in the last 6 months, which increases the risk of potential failures.\n- 10 towers have experienced repeat maintenance issues, suggesting the need for more in-depth investigation and preventive actions.\n\nRecommendations:\n- Prioritize repairs and optimizations for the 8 towers with high call drop rates, 15 towers with poor signal strength, 12 towers with high latency, and 10 towers with low download speeds.\n- Develop a proactive maintenance schedule to address the 25 towers that have not had recent maintenance, focusing on critical and high-priority sites first.\n- Investigate the 10 towers with repeat maintenance issues to identify and address the root causes of the problems.\n- Implement remote monitoring and predictive maintenance strategies to better anticipate and prevent network issues.\n- Explore opportunities to optimize network configuration, antenna adjustments, or equipment upgrades to improve overall network performance.\n\nTrends and Anomalies:\n- The majority of the towers are located in Egypt, which could indicate a potential need for network expansion or optimization in other countries.\n- The high-priority towers generally have better operational and performance metrics, suggesting the prioritization process is effective.\n- The 10 towers with repeat maintenance issues should be analyzed in more detail to understand the underlying causes and develop targeted solutions.\n\nOverall, the telecom network appears to be functioning well, with some targeted areas for improvement. By addressing the identified performance and maintenance issues, the operator can enhance the overall network quality and reliability, leading to better customer experience and operational efficiency."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in Python (Beta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code in Python (Beta)2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in Python (Beta)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python (Beta)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python (Beta)1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python (Beta)2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "956ea23e-f0da-4406-b8d3-386dd545f2ff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33caa0e3aabfc68144800f447bcab5b015a96babe71095f9c107bcbc3b4291b3"
+  },
+  "id": "68iAktWI4ZmMlv1P",
+  "tags": []
+}
